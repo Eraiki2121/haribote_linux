@@ -1,6 +1,8 @@
 # haribote-ipl
 	.code16
 	.section .text
+	.equ	CYLS,	10	# number of cylinders to load
+
 	.byte	0xeb, 0x4e, 0x90 # jmp entry
 	.ascii	"HARIBOTE"	# any name you like of this boot sector
 	.word	512		# size of a sector (must be 512byte)
@@ -59,12 +61,19 @@ next:
 	add	$1, %cl
 	cmp	$18, %cl	# read until sector 18
 	jbe	readloop
+	mov	$1, %cl
+	add	$1, %dh
+	cmp	$2, %dh		# read until header 1
+	jb	readloop
+	mov	$0, %dh
+	add	$1, %ch
+	cmp	$CYLS, %ch	# read until cylinder (CYLS - 1)
+	jb	readloop
 
-# sleep forever
+# run haribote.sys
 
-fin:
-	hlt			# halt CPU
-	jmp	fin
+	jmp	0xc400
+
 error:
 	movw	$0, %ax
 	movw	%ax, %es
@@ -78,6 +87,9 @@ putloop:
 	mov	$15, %bx	# color code
 	int	$0x10		# call Video BIOS
 	jmp	putloop
+fin:
+	hlt			# halt CPU
+	jmp	fin
 msg:
 	.asciz	"\n\nload error\n"
 

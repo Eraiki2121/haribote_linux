@@ -3,7 +3,7 @@ LD := ld
 OBJCOPY := objcopy
 GDB := gdb
 QEMU := qemu-system-i386
-DISK_IMAGE = haribote.img
+DISK_IMAGE := helloos.img
 
 # If you don't need list file, comment out the following
 LIST = -Wa,-a=$(@:.o=.lst)

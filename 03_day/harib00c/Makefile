@@ -3,40 +3,39 @@ LD := ld
 OBJCOPY := objcopy
 GDB := gdb
 QEMU := qemu-system-i386
+DISK_IMAGE = haribote.img
 
-obj-y := ipl.o
+# If you don't need list file, comment out the following
+LIST = -Wa,-a=$(@:.o=.lst)
 
-all: fd.img
+all: $(DISK_IMAGE)
 
-dump: ipl.bin
+dump: $(DISK_IMAGE)
 	hexdump -C $<
 
-run: fd.img
+run: $(DISK_IMAGE)
 	$(QEMU) -fda $< &
 
-debug: fd.img ipl.gdb
+debug: $(DISK_IMAGE) gdb_script.txt
 	$(QEMU) -S -s -fda $< &
-	$(GDB) -q -s ipl.out -x ipl.gdb
+	$(GDB) -q -s ipl.out -x gdb_script.txt
 
-fd.img: ipl.bin fd_empty.img
+$(DISK_IMAGE): ipl.bin empty.img
 	dd if=ipl.bin of=$@
-	dd if=fd_empty.img of=$@ bs=512 skip=1 seek=1
+	dd if=empty.img of=$@ bs=512 skip=1 seek=1
 
-ipl.bin: ipl.out
-	$(OBJCOPY) -O binary $< $@
+ipl.out: ipl.lds ipl.o
+	$(LD) -o $@ -T ipl.lds ipl.o
 
-ipl.out: ipl.lds $(obj-y)
-	$(LD) -o $@ -T ipl.lds $(obj-y)
-
-%.o: %.c
-	$(CC) -c -o $@ $<
-
-%.o: %.S
-	$(CC) -Wa,-a=$(@:.o=.lst) -c -o $@ $<
-
-fd_empty.img:
+empty.img:
 	dd if=/dev/zero of=$@ bs=512 count=2880
 	mkdosfs $@
+
+%.bin: %.out
+	$(OBJCOPY) -O binary $< $@
+
+%.o: %.S
+	$(CC) $(LIST) -c -o $@ $<
 
 clean:
 	rm -f *.img *.out *.bin *.o *.lst
@@ -44,4 +43,4 @@ clean:
 distclean: clean
 	rm -f *~
 
-.PHONY: all dump run clean distclean
+.PHONY: all dump run debug clean distclean

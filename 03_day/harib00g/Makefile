@@ -3,55 +3,54 @@ LD := ld
 OBJCOPY := objcopy
 GDB := gdb
 QEMU := qemu-system-i386
+DISK_IMAGE = haribote.img
 
-obj-y := ipl.o
+# If you don't need list file, comment out the following
+LIST = -Wa,-a=$(@:.o=.lst)
 
-all: haribote.img
+all: $(DISK_IMAGE)
 
-dump: ipl.bin
+dump: $(DISK_IMAGE)
 	hexdump -C $<
 
-run: haribote.img
+run: $(DISK_IMAGE)
 	$(QEMU) -fda $< &
 
-debug: haribote.img ipl.gdb
+debug: $(DISK_IMAGE) gdb_script.txt
 	$(QEMU) -S -s -fda $< &
-	$(GDB) -q -s ipl.out -x ipl.gdb
+	$(GDB) -q -s ipl10.out -x gdb_script.txt
 
-haribote.img: ipl.bin haribote.sys fd_empty.img
-	cp fd_empty.img __tmp.img
-	rm -rf tmp
+$(DISK_IMAGE): ipl10.bin haribote_sys.img
+	dd if=ipl10.bin of=$@
+	dd if=haribote_sys.img of=$@ bs=512 skip=1 seek=1
+
+haribote_sys.img: empty.img haribote.sys
+	cp empty.img $@
 	mkdir tmp
-	sudo mount -t msdos -o loop __tmp.img tmp
+	sudo mount -t msdos -o loop $@ tmp/
 	sudo cp haribote.sys tmp
 	sleep 1
 	sudo umount tmp
-	dd if=ipl.bin of=$@
-	dd if=__tmp.img of=$@ bs=512 skip=1 seek=1
-	rm __tmp.img
-	rmdir tmp
+	rm -rf tmp
 
-ipl.bin: ipl.out
-	$(OBJCOPY) -O binary $< $@
-
-ipl.out: ipl.lds $(obj-y)
-	$(LD) -o $@ -T ipl.lds $(obj-y)
-
-haribote.sys: haribote.out
-	$(OBJCOPY) -O binary $< $@
+ipl10.out: ipl10.lds ipl10.o
+	$(LD) -o $@ -T ipl10.lds ipl10.o
 
 haribote.out: haribote.lds haribote.o
 	$(LD) -o $@ -T haribote.lds haribote.o
 
-%.o: %.c
-	$(CC) -c -o $@ $<
-
-%.o: %.S
-	$(CC) -Wa,-a=$(@:.o=.lst) -c -o $@ $<
-
-fd_empty.img:
+empty.img:
 	dd if=/dev/zero of=$@ bs=512 count=2880
 	mkdosfs $@
+
+%.bin: %.out
+	$(OBJCOPY) -O binary $< $@
+
+%.sys: %.out
+	$(OBJCOPY) -O binary $< $@
+
+%.o: %.S
+	$(CC) $(LIST) -c -o $@ $<
 
 clean:
 	rm -f *.img *.out *.bin *.o *.lst *.sys
@@ -59,4 +58,4 @@ clean:
 distclean: clean
 	rm -f *~
 
-.PHONY: all dump run clean distclean
+.PHONY: all dump run debug clean distclean
