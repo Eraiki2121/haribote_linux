@@ -3,7 +3,8 @@
 	.section .text
 	.equ	CYLS,	10	# number of cylinders to load
 
-	.byte	0xeb, 0x4e, 0x90 # jmp entry
+	jmp	entry
+	.byte	0x90
 	.ascii	"HARIBOTE"	# any name you like of this boot sector
 	.word	512		# size of a sector (must be 512byte)
 	.byte	1		# size of a cluster (must be 1sector)
