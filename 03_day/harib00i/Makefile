@@ -21,7 +21,7 @@ run: $(DISK_IMAGE)
 
 debug: $(DISK_IMAGE) gdb_script.txt
 	$(QEMU) -S -s -fda $< &
-	$(GDB) -q -s ipl10.out -x gdb_script.txt
+	$(GDB) -q -s asmhead.out -x gdb_script.txt
 
 $(DISK_IMAGE): ipl10.bin haribote_sys.img
 	dd if=ipl10.bin of=$@
@@ -46,10 +46,10 @@ asmhead.out: asmhead.lds asmhead.o
 	$(LD) -o $@ -T asmhead.lds asmhead.o
 
 bootpack.hrb: bootpack.out bootpack.bin Makefile
-	data_size=0x0$$(objdump -h $< | awk '/.data/ {print $$3}'); \
-	data_lma=0x0$$(objdump -h $< | awk '/.data/ {print $$5}'); \
-	bss_size=0x0$$(objdump -h $< | awk '/.bss/ {print $$3}'); \
-	entry_point=$$(readelf -h $< | sed -n -e 's/[[:blank:]]*Entry point address:[[:blank:]]*\(.*\)/\1/p'); \
+	data_size=0x0$$(LANG=C objdump -h bootpack.out | awk '/.data/ {print $$3}'); \
+	data_lma=0x0$$(LANG=C objdump -h bootpack.out | awk '/.data/ {print $$5}'); \
+	bss_size=0x0$$(LANG=C objdump -h bootpack.out | awk '/.bss/ {print $$3}'); \
+	entry_point=$$(LANG=C readelf -h bootpack.out | sed -n -e 's/[[:blank:]]*Entry point address:[[:blank:]]*\(.*\)/\1/p'); \
 	perl -e "print pack('LA4LLLLLLL', $(DATA_START) + $$data_size + $$bss_size, 'Hari', 0, $(DATA_START), \
 	$$data_size, $$data_lma, 0xe9000000, $$entry_point - $(TEXT_START) + 4, 0);" > $@
 	cat bootpack.bin >> $@
@@ -68,10 +68,10 @@ bootpack.bin: bootpack.out Makefile
 	$(OBJCOPY) -O binary $< $@
 
 %.o: %.S
-	$(CC) $(LIST) -c -o $@ $<
+	$(CC) -g $(LIST) -c -o $@ $<
 
 %.o: %.c
-	$(CC) -m32 $(LIST) -c -o $@ $<
+	$(CC) -g -m32 $(LIST) -c -o $@ $<
 
 clean:
 	rm -f *.img *.out *.bin *.o *.lst *.sys *.hrb
