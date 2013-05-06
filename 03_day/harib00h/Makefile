@@ -18,7 +18,7 @@ run: $(DISK_IMAGE)
 
 debug: $(DISK_IMAGE) gdb_script.txt
 	$(QEMU) -S -s -fda $< &
-	$(GDB) -q -s ipl10.out -x gdb_script.txt
+	$(GDB) -q -s haribote.out -x gdb_script.txt
 
 $(DISK_IMAGE): ipl10.bin haribote_sys.img
 	dd if=ipl10.bin of=$@
@@ -50,7 +50,7 @@ empty.img:
 	$(OBJCOPY) -O binary $< $@
 
 %.o: %.S
-	$(CC) $(LIST) -c -o $@ $<
+	$(CC) -g $(LIST) -c -o $@ $<
 
 clean:
 	rm -f *.img *.out *.bin *.o *.lst *.sys

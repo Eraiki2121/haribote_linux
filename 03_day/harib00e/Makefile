@@ -50,7 +50,7 @@ empty.img:
 	$(OBJCOPY) -O binary $< $@
 
 %.o: %.S
-	$(CC) $(LIST) -c -o $@ $<
+	$(CC) -g $(LIST) -c -o $@ $<
 
 clean:
 	rm -f *.img *.out *.bin *.o *.lst *.sys
