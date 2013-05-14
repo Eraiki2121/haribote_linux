@@ -21,7 +21,7 @@ debug: $(DISK_IMAGE) gdb_script.txt
 	$(GDB) -q -s ipl.out -x gdb_script.txt
 
 $(DISK_IMAGE): ipl.bin
-	../../tools/mk_fdimage.py -b ipl $@
+	../../tools/mk_fdimage.py -b ipl.bin $@
 
 ipl.out: ipl.lds ipl.o
 	$(LD) -o $@ -T ipl.lds ipl.o

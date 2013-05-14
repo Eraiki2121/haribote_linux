@@ -33,7 +33,7 @@
 	out	%al, $0x21
 	nop			# successive "out" instructions
 	out	%al, $0xa1	#  don't work in some machines
-	cli			# forbidden also for upper CPU level
+	cli			# clear interrupt
 
 # set up A20GATE to allow memory access above 1MB
 	call	waitkbdout
