@@ -73,7 +73,7 @@ next:
 
 # run haribote.sys
 
-	jmp	0xc400
+	jmp	0xc200
 
 error:
 	movw	$0, %ax

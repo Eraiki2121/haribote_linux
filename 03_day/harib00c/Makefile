@@ -20,16 +20,11 @@ debug: $(DISK_IMAGE) gdb_script.txt
 	$(QEMU) -S -s -fda $< &
 	$(GDB) -q -s ipl.out -x gdb_script.txt
 
-$(DISK_IMAGE): ipl.bin empty.img
-	dd if=ipl.bin of=$@
-	dd if=empty.img of=$@ bs=512 skip=1 seek=1
+$(DISK_IMAGE): ipl.bin
+	../../tools/mk_fdimage.py -b ipl $@
 
 ipl.out: ipl.lds ipl.o
 	$(LD) -o $@ -T ipl.lds ipl.o
-
-empty.img:
-	dd if=/dev/zero of=$@ bs=512 count=2880
-	mkdosfs $@
 
 %.bin: %.out
 	$(OBJCOPY) -O binary $< $@

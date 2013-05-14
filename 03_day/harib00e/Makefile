@@ -20,28 +20,14 @@ debug: $(DISK_IMAGE) gdb_script.txt
 	$(QEMU) -S -s -fda $< &
 	$(GDB) -q -s ipl.out -x gdb_script.txt
 
-$(DISK_IMAGE): ipl.bin haribote_sys.img
-	dd if=ipl.bin of=$@
-	dd if=haribote_sys.img of=$@ bs=512 skip=1 seek=1
-
-haribote_sys.img: empty.img haribote.sys
-	cp empty.img $@
-	mkdir tmp
-	sudo mount -t msdos -o loop $@ tmp/
-	sudo cp haribote.sys tmp
-	sleep 1
-	sudo umount tmp
-	rm -rf tmp
+$(DISK_IMAGE): ipl.bin haribote.sys
+	../../tools/mk_fdimage.py -b ipl.bin $@ haribote.sys
 
 ipl.out: ipl.lds ipl.o
 	$(LD) -o $@ -T ipl.lds ipl.o
 
 haribote.out: haribote.lds haribote.o
 	$(LD) -o $@ -T haribote.lds haribote.o
-
-empty.img:
-	dd if=/dev/zero of=$@ bs=512 count=2880
-	mkdosfs $@
 
 %.bin: %.out
 	$(OBJCOPY) -O binary $< $@

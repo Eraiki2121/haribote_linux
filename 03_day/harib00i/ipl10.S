@@ -74,7 +74,7 @@ next:
 # run haribote.sys
 
 	mov	%ch, (0x0ff0)	# memorize the number of read cylinders
-	jmp	0xc400
+	jmp	0xc200
 
 error:
 	movw	$0, %ax

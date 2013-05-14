@@ -1,6 +1,6 @@
 SECTIONS
 {
-	. = 0xc400;
+	. = 0xc200;
 
 	.text :
 	{
