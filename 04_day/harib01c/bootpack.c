@@ -6,7 +6,7 @@ void HariMain(void)
 	char *p;
 
 	for (i = 0xa0000; i <= 0xaffff; i++) {
-		p = (char *)i;
+		p = i; /* this line generate a warning */
 		*p = i & 0x0f; /* Screen turns striped */
 	}
 
