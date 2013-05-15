@@ -26,9 +26,9 @@ dump: $(DISK_IMAGE)
 run: $(DISK_IMAGE)
 	$(QEMU) -fda $< &
 
-debug: $(DISK_IMAGE) gdb_script.txt
+debug: $(DISK_IMAGE)
 	$(QEMU) -S -s -fda $< &
-	$(GDB) -q -s haribote.out -x gdb_script.txt
+	$(GDB) -q -s haribote.out -x ../../tools/gdb_script.txt
 
 $(DISK_IMAGE): ipl10.bin haribote.sys
 	../../tools/mk_fdimage.py -b ipl10.bin $@ haribote.sys

@@ -27,9 +27,9 @@ dump: $(DISK_IMAGE)
 run: $(DISK_IMAGE)
 	$(QEMU) -fda $< &
 
-debug: $(DISK_IMAGE) gdb_script.txt
+debug: $(DISK_IMAGE)
 	$(QEMU) -S -s -fda $< &
-	$(GDB) -q -s bootpack.out -x gdb_script.txt
+	$(GDB) -q -s bootpack.out -x ../../tools/gdb_script.txt
 
 $(DISK_IMAGE): ipl10.bin haribote.sys
 	../../tools/mk_fdimage.py -b ipl10.bin $@ haribote.sys
@@ -65,7 +65,7 @@ bootpack.hrb: bootpack.out Makefile
 	$$data_end - $$data_start, $$data_lma, 0xe9000000, $$entry_point - $$text_start + 4, $$heap_start);" > $@
 
 bootpack.out: bootpack.lds bootpack.o naskfunc.o
-	$(LD) -o $@ -T bootpack.lds bootpack.o naskfunc.o
+	$(LD) $(DEBUG) -o $@ -T bootpack.lds bootpack.o naskfunc.o
 
 %.bin: %.out
 	$(OBJCOPY) -R .eh_frame -O binary $< $@
