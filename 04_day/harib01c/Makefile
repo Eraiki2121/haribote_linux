@@ -8,6 +8,7 @@ CC = gcc
 LD = ld
 endif
 
+CFLAGS = -Wall
 OBJCOPY = objcopy
 NM = nm
 GDB = gdb

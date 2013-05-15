@@ -8,6 +8,7 @@ CC = gcc
 LD = ld
 endif
 
+CFLAGS = -Wall
 OBJCOPY = objcopy
 NM = nm
 GDB = gdb
@@ -77,7 +78,7 @@ bootpack.out: bootpack.lds bootpack.o
 	$(CC) $(DEBUG) $(LIST) -c -o $@ $<
 
 %.o: %.c
-	$(CC) $(DEBUG) $(LIST) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEBUG) $(LIST) -c -o $@ $<
 
 clean:
 	rm -f *.img *.out *.bin *.o *.lst *.sys *.hrb
