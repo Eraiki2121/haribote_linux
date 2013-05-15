@@ -1,12 +1,22 @@
-CC := gcc
-LD := ld
-OBJCOPY := objcopy
-GDB := gdb
-QEMU := qemu-system-i386
-DISK_IMAGE := helloos.img
+ifeq ($(shell uname -m),x86_64)
+# x86_64 host
+CC = gcc -m32
+LD = ld -m elf_i386
+else
+# i386 host
+CC = gcc
+LD = ld
+endif
+
+OBJCOPY = objcopy
+GDB = gdb
+QEMU = qemu-system-i386
+DISK_IMAGE = helloos.img
 
 # If you don't need list file, comment out the following
 LIST = -Wa,-a=$(@:.o=.lst)
+# If you don't need debug option, comment out the following
+DEBUG = -g
 
 all: $(DISK_IMAGE)
 
@@ -34,8 +44,11 @@ empty.img:
 %.bin: %.out
 	$(OBJCOPY) -O binary $< $@
 
+%.o: %.s
+	$(CC) $(DEBUG) $(LIST) -c -o $@ $<
+
 %.o: %.S
-	$(CC) -g $(LIST) -c -o $@ $<
+	$(CC) $(DEBUG) $(LIST) -c -o $@ $<
 
 clean:
 	rm -f *.img *.out *.bin *.o *.lst
