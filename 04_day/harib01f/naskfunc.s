@@ -39,7 +39,6 @@ io_in16:		# int io_in16(int port);
 .global io_in32
 io_in32:		# int io_in32(int port);
 	mov	4(%esp), %edx		# port
-	mov	$0, %eax
 	in	%dx, %eax
 	ret
 
@@ -72,7 +71,7 @@ io_load_eflags:		# int io_load_eflags(void);
 
 .global io_store_eflags
 io_store_eflags:	# void io_store_eflags(int eflags);
-	mov	4(%eax), %eax
+	mov	4(%esp), %eax
 	push	%eax
 	popf		# POP EFLAGS
 	ret
