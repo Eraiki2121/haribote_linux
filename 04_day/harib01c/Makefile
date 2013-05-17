@@ -63,7 +63,7 @@ bootpack.hrb: bootpack.out Makefile
 	data_lma=0x$$(LANG=C $(NM) bootpack.out | awk '/_sidata/ {print $$1}'); \
 	entry_point=0x$$(LANG=C $(NM) bootpack.out | awk '/HariMain/ {print $$1}'); \
 	perl -e "print pack('LA4LLLLLLL', $$heap_end, 'Hari', 0, $$data_start, \
-	$$data_end - $$data_start, $$data_lma, 0xe9000000, $$entry_point - $$text_start + 4, $$heap_start);" > $@
+	$$data_end - $$data_start, 0x24 + $$data_lma, 0xe9000000, $$entry_point - $$text_start + 4, $$heap_start);" > $@
 
 bootpack.out: bootpack.lds bootpack.o naskfunc.o
 	$(LD) -o $@ -T bootpack.lds bootpack.o naskfunc.o
