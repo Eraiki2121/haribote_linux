@@ -27,34 +27,34 @@ void HariMain(void)
 void init_palette(void)
 {
 	static unsigned char table_rgb[16 * 3] = {
-		0x00, 0x00, 0x00,	/*  0:黒 */
-		0xff, 0x00, 0x00,	/*  1:明るい赤 */
-		0x00, 0xff, 0x00,	/*  2:明るい緑 */
-		0xff, 0xff, 0x00,	/*  3:明るい黄色 */
-		0x00, 0x00, 0xff,	/*  4:明るい青 */
-		0xff, 0x00, 0xff,	/*  5:明るい紫 */
-		0x00, 0xff, 0xff,	/*  6:明るい水色 */
-		0xff, 0xff, 0xff,	/*  7:白 */
-		0xc6, 0xc6, 0xc6,	/*  8:明るい灰色 */
-		0x84, 0x00, 0x00,	/*  9:暗い赤 */
-		0x00, 0x84, 0x00,	/* 10:暗い緑 */
-		0x84, 0x84, 0x00,	/* 11:暗い黄色 */
-		0x00, 0x00, 0x84,	/* 12:暗い青 */
-		0x84, 0x00, 0x84,	/* 13:暗い紫 */
-		0x00, 0x84, 0x84,	/* 14:暗い水色 */
-		0x84, 0x84, 0x84	/* 15:暗い灰色 */
+		0x00, 0x00, 0x00,	/*  0:black */
+		0xff, 0x00, 0x00,	/*  1:light red */
+		0x00, 0xff, 0x00,	/*  2:light green */
+		0xff, 0xff, 0x00,	/*  3:light yellow */
+		0x00, 0x00, 0xff,	/*  4:light blue */
+		0xff, 0x00, 0xff,	/*  5:light purple */
+		0x00, 0xff, 0xff,	/*  6:light cyan */
+		0xff, 0xff, 0xff,	/*  7:white */
+		0xc6, 0xc6, 0xc6,	/*  8:light gray */
+		0x84, 0x00, 0x00,	/*  9:dark red */
+		0x00, 0x84, 0x00,	/* 10:dark green */
+		0x84, 0x84, 0x00,	/* 11:dark yellow */
+		0x00, 0x00, 0x84,	/* 12:dark blue */
+		0x84, 0x00, 0x84,	/* 13:dark purple */
+		0x00, 0x84, 0x84,	/* 14:dark cyan */
+		0x84, 0x84, 0x84	/* 15:dark gray */
 	};
 	set_palette(0, 15, table_rgb);
 	return;
 
-	/* static char 命令は、データにしか使えないけどDB命令相当 */
+	/* static char is corrensponding to DB directive */
 }
 
 void set_palette(int start, int end, unsigned char *rgb)
 {
 	int i, eflags;
-	eflags = io_load_eflags();	/* 割り込み許可フラグの値を記録する */
-	io_cli(); 					/* 許可フラグを0にして割り込み禁止にする */
+	eflags = io_load_eflags();	/* save interrupt flag */
+	io_cli(); 					/* prohibit interrupt */
 	io_out8(0x03c8, start);
 	for (i = start; i <= end; i++) {
 		io_out8(0x03c9, rgb[0] / 4);
@@ -62,6 +62,6 @@ void set_palette(int start, int end, unsigned char *rgb)
 		io_out8(0x03c9, rgb[2] / 4);
 		rgb += 3;
 	}
-	io_store_eflags(eflags);	/* 割り込み許可フラグを元に戻す */
+	io_store_eflags(eflags);	/* restore interrupt flag */
 	return;
 }
